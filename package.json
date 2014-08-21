@@ -11,6 +11,10 @@
     "export",
     "bucket"
   ],
+  "bin": {
+    "riak-bucket-exporter": "./bin/riak-bucket-exporter.js"
+  },
+  "repository": "https://bitbucket.org/gooroo175/riak-bucket-exporter.git",
   "author": "Max Maurer <maxemanuel.maurer@gmail.com> (http://max-maurer.de/)",
   "license": "MIT",
   "dependencies": {

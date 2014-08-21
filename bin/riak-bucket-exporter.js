@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 
 var program = require('commander');
 
@@ -15,20 +16,35 @@ var bucket = program.args;
 program.host = program.host || 'localhost';
 program.port = program.port || '8089';
 program.file = program.file || bucket+'.txt';
+var count = 0;
+var openWrites = 0;
 var db = require("riak-js").getClient({host: "localhost", port: "8098"});
 var fs = require('fs');
 if (fs.existsSync(program.file)) {
   throw new Error('the output file already exists');
 }
-db.keys(bucket,{keys:'stream'}, end).on('keys', handleKey).start();
+db.keys(bucket,{keys:'stream'}).on('keys', handleKey).on('end', end).start();
 
 function end() {
-  console.log('finished export to '+program.file);
+  if (openWrites>0) {
+    setTimeout(end, 1000);
+    return;
+  }
+  if (count<=0) {
+    console.log('nothing exported');
+  } else {
+    console.log('\nfinished export of '+count+' keys to '+program.file);
+  }
 }
 
 function handleKey(keys) {
+  if (count===0) {
+    process.stdout.write("exporting");
+  }
+  count+=keys.length;
   for (var i=0;i<keys.length;i++) {
     var key = keys[i];
+    openWrites++;
     processKey(key);
   }
 }
@@ -38,6 +54,8 @@ function processKey(key) {
     var out = '====== Key: '+key+' ======\n';
     out += JSON.stringify(obj, null, '\t')+'\n';
     fs.appendFile(program.file, out);
+    process.stdout.write(".");
+    openWrites--;
   });
 }
 

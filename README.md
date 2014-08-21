@@ -1,10 +1,10 @@
 # riak-bucket-exporter #
 
-Small command line utility to export bucket contents to a file. 
+Small command line utility to export bucket contents to a file.
 
 ### How to use ###
 
-* `npm install -g riak-bucket-exporter``
+* `npm install -g riak-bucket-exporter`
 * `run riak-bucket-exporter [bucketName]`
 * `grab a cup of coffee`
 * `export will be in bucketName.txt`
