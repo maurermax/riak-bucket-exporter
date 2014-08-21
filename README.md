@@ -21,3 +21,4 @@ Small command line utility to export bucket contents to a file.
     -H, --host [host]      specify the host (default: localhost)
     -p, --port [port]      specify the post (default: 8098)
     -f, --file [FileName]  specify the file name (default: [bucket].txt)````
+````
