@@ -14,7 +14,7 @@ if(!program.args.length) {
 }
 var bucket = program.args;
 program.host = program.host || 'localhost';
-program.port = program.port || '8089';
+program.port = program.port || '8098';
 program.file = program.file || bucket+'.txt';
 var count = 0;
 var openWrites = 0;
@@ -23,6 +23,7 @@ var fs = require('fs');
 if (fs.existsSync(program.file)) {
   throw new Error('the output file already exists');
 }
+console.log('fetching bucket '+bucket+' from '+program.host+':'+program.port);
 db.keys(bucket,{keys:'stream'}, function (err) {
   if (err) {
     console.log('failed to fetch keys');
