@@ -1,6 +1,6 @@
 {
   "name": "riak-bucket-exporter",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Small node utility to export a whole bucket with all keys from riak into a file",
   "main": "index.js",
   "scripts": {

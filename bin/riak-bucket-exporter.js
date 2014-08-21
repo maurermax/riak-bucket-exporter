@@ -18,12 +18,17 @@ program.port = program.port || '8089';
 program.file = program.file || bucket+'.txt';
 var count = 0;
 var openWrites = 0;
-var db = require("riak-js").getClient({host: "localhost", port: "8098"});
+var db = require("riak-js").getClient({host: program.host, port: program.port});
 var fs = require('fs');
 if (fs.existsSync(program.file)) {
   throw new Error('the output file already exists');
 }
-db.keys(bucket,{keys:'stream'}).on('keys', handleKey).on('end', end).start();
+db.keys(bucket,{keys:'stream'}, function (err) {
+  if (err) {
+    console.log('failed to fetch keys');
+    console.log(err);
+  }
+}).on('keys', handleKey).on('end', end).start();
 
 function end() {
   if (openWrites>0) {
