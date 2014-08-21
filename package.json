@@ -1,0 +1,20 @@
+{
+  "name": "riak-bucket-exporter",
+  "version": "0.0.1",
+  "description": "Small node utility to export a whole bucket with all keys from riak into a file",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "riak",
+    "export",
+    "bucket"
+  ],
+  "author": "Max Maurer <maxemanuel.maurer@gmail.com> (http://max-maurer.de/)",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^2.3.0",
+    "riak-js": "^0.10.2"
+  }
+}
