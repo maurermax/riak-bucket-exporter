@@ -14,13 +14,14 @@
   "bin": {
     "riak-bucket-exporter": "./bin/riak-bucket-exporter.js"
   },
-  "repository" : {
-    "type" : "git",
-    "url" : "https://github.com/maurermax/riak-bucket-exporter.git"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/maurermax/riak-bucket-exporter.git"
   },
   "author": "Max Maurer <maxemanuel.maurer@gmail.com> (http://max-maurer.de/)",
   "license": "MIT",
   "dependencies": {
+    "async": "^0.9.0",
     "commander": "^2.3.0",
     "riak-js": "^0.10.2"
   }
