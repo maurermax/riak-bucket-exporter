@@ -4,7 +4,7 @@ var program = require('commander');
 var async = require('async');
 
 program
-    .version('0.0.5')
+    .version('0.0.8')
     .usage('[options] bucketName')
     .option('-H, --host [host]','specify the host (default: localhost)')
     .option('-p, --port [port]','specify the post (default: 8098)')
@@ -59,7 +59,7 @@ function exportFromBucket() {
     throw new Error('the output file already exists');
   }
   console.log('fetching bucket '+bucket+' from '+program.host+':'+program.port);
-  fs.appendFile(program.file, '[');
+  fs.appendFileSync(program.file, '[');
   db.keys(bucket,{keys:'stream'}, function (err) {
     if (err) {
       console.log('failed to fetch keys');
@@ -73,7 +73,7 @@ function end() {
     setTimeout(end, 1000);
     return;
   }
-  fs.appendFile(program.file, ']');
+  fs.appendFileSync(program.file, ']');
   if (count<=0) {
     console.log('nothing exported');
   } else {
@@ -100,9 +100,9 @@ function processKey(key) {
     out.indexes = extractIndexes(meta);
     out.data = obj;
     if (!first) {
-      fs.appendFile(program.file, ',');
+      fs.appendFileSync(program.file, ',');
     }
-    fs.appendFile(program.file, JSON.stringify(out,null,'\t'));
+    fs.appendFileSync(program.file, JSON.stringify(out,null,'\t'));
     first=false;
     process.stdout.write(".");
     openWrites--;
