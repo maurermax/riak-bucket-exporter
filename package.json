@@ -1,8 +1,8 @@
 {
   "name": "riak-bucket-exporter",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Small node utility to export a whole bucket with all keys from riak into a file",
-  "main": "index.js",
+  "main": "./bin/riak-bucket-exporter.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
