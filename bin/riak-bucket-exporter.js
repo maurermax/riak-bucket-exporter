@@ -83,14 +83,11 @@ function end() {
   if (count<=0) {
     console.log('nothing exported');
   } else {
-    console.log('\nfinished export of '+count+' keys to '+program.file);
+    console.log('finished export of '+count+' keys to '+program.file);
   }
 }
 
 function handleKeys(keys) {
-  if (count===0) {
-    process.stdout.write("exporting");
-  }
   count+=keys.length;
   for (var i=0;i<keys.length;i++) {
     var key = keys[i];
@@ -99,11 +96,12 @@ function handleKeys(keys) {
       openWrites--;
     });
   }
-  process.stdout.write('queue size: ' + q.length());
+  console.log('queue size: ' + q.length());
 }
 
 var first = true;
 function processKey(key, cb) {
+  console.log('exporting key ' + key);
   db.get(bucket,key, function(err, obj, meta) {
     var out = {key: key};
     out.indexes = extractIndexes(meta);
@@ -113,7 +111,6 @@ function processKey(key, cb) {
     }
     fs.appendFileSync(program.file, JSON.stringify(out,null,'\t'));
     first=false;
-    process.stdout.write(".");
     return cb();
   });
 }
