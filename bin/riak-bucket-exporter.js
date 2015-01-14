@@ -54,6 +54,10 @@ function importToBucket() {
   });
 }
 
+var receivedAll = false;
+var q = async.queue(processKey, 20);
+q.drain = end;
+
 function exportFromBucket() {
   if (fs.existsSync(program.file)) {
     throw new Error('the output file already exists');
@@ -65,12 +69,14 @@ function exportFromBucket() {
       console.log('failed to fetch keys');
       console.log(err);
     }
-  }).on('keys', handleKey).on('end', end).start();
+  }).on('keys', handleKeys).on('end', function() {
+    console.log('received all keys');
+    receivedAll = true;
+  }).start();
 }
 
 function end() {
-  if (openWrites>0) {
-    setTimeout(end, 1000);
+  if (!receivedAll) {
     return;
   }
   fs.appendFileSync(program.file, ']');
@@ -81,7 +87,7 @@ function end() {
   }
 }
 
-function handleKey(keys) {
+function handleKeys(keys) {
   if (count===0) {
     process.stdout.write("exporting");
   }
@@ -89,12 +95,15 @@ function handleKey(keys) {
   for (var i=0;i<keys.length;i++) {
     var key = keys[i];
     openWrites++;
-    processKey(key);
+    q.push(key, function() {
+      openWrites--;
+    });
   }
+  process.stdout.write('queue size: ' + q.length());
 }
 
 var first = true;
-function processKey(key) {
+function processKey(key, cb) {
   db.get(bucket,key, function(err, obj, meta) {
     var out = {key: key};
     out.indexes = extractIndexes(meta);
@@ -105,7 +114,7 @@ function processKey(key) {
     fs.appendFileSync(program.file, JSON.stringify(out,null,'\t'));
     first=false;
     process.stdout.write(".");
-    openWrites--;
+    return cb();
   });
 }
 
