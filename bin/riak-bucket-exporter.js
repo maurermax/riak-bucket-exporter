@@ -10,6 +10,7 @@ program
     .option('-p, --port [port]','specify the post (default: 8098)')
     .option('-f, --file [FileName]','specify the file name (default: [bucket].json)')
     .option('-i, --import','import mode (instead of reading from bucket entries will be written to bucket)')
+    .option('', '--delete', 'delete the keys as they are exported (DANGER: possible data loss)')
     .parse(process.argv);
 if(!program.args.length) {
     program.help();
@@ -22,9 +23,16 @@ var count = 0;
 var openWrites = 0;
 var db = require("riak-js").getClient({host: program.host, port: program.port});
 var fs = require('fs');
+var deleteKeys = false;
+
 if (program.import) {
   importToBucket();
 } else {
+  if (program.delete) {
+    deleteKeys = true;
+    console.log('WARNING: keys will be deleted as they are exported');
+  }
+  
   exportFromBucket();
 }
 
@@ -111,6 +119,11 @@ function processKey(key, cb) {
     }
     fs.appendFileSync(program.file, JSON.stringify(out,null,'\t'));
     first=false;
+    
+    if (deleteKeys) {
+        db.remove(bucket, key);
+    }
+    
     return cb();
   });
 }
