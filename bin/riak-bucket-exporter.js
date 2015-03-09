@@ -121,10 +121,12 @@ function processKey(key, cb) {
     first=false;
     
     if (deleteKeys) {
-        db.remove(bucket, key);
+        db.remove(bucket, key, function (err) {
+            cb();
+        });
+    } else {
+        return cb();
     }
-    
-    return cb();
   });
 }
 
