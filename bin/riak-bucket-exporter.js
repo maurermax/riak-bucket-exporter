@@ -10,7 +10,7 @@ program
     .option('-p, --port [port]','specify the post (default: 8098)')
     .option('-f, --file [FileName]','specify the file name (default: [bucket].json)')
     .option('-i, --import','import mode (instead of reading from bucket entries will be written to bucket)')
-    .option('', '--delete', 'delete the keys as they are exported (DANGER: possible data loss)')
+    .option('--delete', 'delete the keys as they are exported (DANGER: possible data loss)')
     .parse(process.argv);
 if(!program.args.length) {
     program.help();
