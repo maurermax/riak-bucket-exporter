@@ -23,13 +23,12 @@ var count = 0;
 var openWrites = 0;
 var db = require("riak-js").getClient({host: program.host, port: program.port});
 var fs = require('fs');
-var deleteKeys = false;
+var deleteKeys = !program.import && !!program.delete;
 
 if (program.import) {
   importToBucket();
 } else {
   if (program.delete) {
-    deleteKeys = true;
     console.log('WARNING: keys will be deleted as they are exported');
   }
   
@@ -120,13 +119,13 @@ function processKey(key, cb) {
     fs.appendFileSync(program.file, JSON.stringify(out,null,'\t'));
     first=false;
     
-    if (deleteKeys) {
-        db.remove(bucket, key, function (err) {
-            cb();
-        });
-    } else {
-        return cb();
+    if (!deleteKeys) {
+      return cb();
     }
+    
+    db.remove(bucket, key, function (err) {
+      cb();
+    });
   });
 }
 
