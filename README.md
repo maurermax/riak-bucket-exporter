@@ -21,4 +21,5 @@ Usage: riak-bucket-exporter [options] bucketName
     -p, --port [port]      specify the post (default: 8098)
     -f, --file [FileName]  specify the file name (default: [bucket].json)
     -i, --import           import mode (instead of reading from bucket entries will be written to bucket)
+    --delete               delete the keys as they are exported (DANGER: possible data loss)
 ````
