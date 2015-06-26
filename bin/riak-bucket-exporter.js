@@ -31,7 +31,7 @@ if (program.import) {
   if (program.delete) {
     console.log('WARNING: keys will be deleted as they are exported');
   }
-  
+
   exportFromBucket();
 }
 
@@ -118,11 +118,11 @@ function processKey(key, cb) {
     }
     fs.appendFileSync(program.file, JSON.stringify(out,null,'\t'));
     first=false;
-    
+
     if (!deleteKeys) {
       return cb();
     }
-    
+
     db.remove(bucket, key, function (err) {
       cb();
     });
@@ -132,16 +132,18 @@ function processKey(key, cb) {
 function extractIndexes(meta) {
   var indexes = {};
   var regex = /^x-riak-index-(.*)_(.*)$/;
-  for (var key in meta.headers) {
-    var matches = key.match(regex);
-    if (matches) {
-      var name = matches[1];
-      var type = matches[2];
-      var val = meta.headers[key];
-      if (type==='int') {
-        val = parseInt(val, 10);
+  if (meta != null) {
+    for (var key in meta.headers) {
+      var matches = key.match(regex);
+      if (matches) {
+        var name = matches[1];
+        var type = matches[2];
+        var val = meta.headers[key];
+        if (type==='int') {
+          val = parseInt(val, 10);
+        }
+        indexes[name] = val;
       }
-      indexes[name] = val;
     }
   }
   return indexes;
