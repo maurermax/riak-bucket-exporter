@@ -10,6 +10,7 @@ program
     .option('-p, --port [port]','specify the post (default: 8098)')
     .option('-f, --file [FileName]','specify the file name (default: [bucket].json)')
     .option('-i, --import','import mode (instead of reading from bucket entries will be written to bucket)')
+    .option('-c, --concurrency [concurrency]','specify the concurrency (default: 20)')
     .option('--delete', 'delete the keys as they are exported (DANGER: possible data loss)')
     .parse(process.argv);
 if(!program.args.length) {
@@ -19,6 +20,7 @@ var bucket = program.args;
 program.host = program.host || 'localhost';
 program.port = program.port || '8098';
 program.file = program.file || bucket+'.json';
+program.concurrency = program.concurrency || 20;
 var count = 0;
 var openWrites = 0;
 var db = require("riak-js").getClient({host: program.host, port: program.port});
@@ -44,7 +46,7 @@ function importToBucket() {
       return console.log(err);
     }
     var entries = JSON.parse(data);
-    async.eachLimit(entries, 20, function(entry, cb) {
+    async.eachLimit(entries, program.concurrency, function(entry, cb) {
       console.log('inserting entry with key %j', entry.key);
       db.save(bucket, entry.key, entry.data, {index: entry.indexes}, function(err, res, receivedMetadata) {
         if (err) {
@@ -62,7 +64,7 @@ function importToBucket() {
 }
 
 var receivedAll = false;
-var q = async.queue(processKey, 20);
+var q = async.queue(processKey, program.concurrency);
 q.drain = end;
 
 function exportFromBucket() {
