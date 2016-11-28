@@ -52,7 +52,11 @@ function importToBucket() {
     var entries = JSON.parse(data);
     async.eachLimit(entries, program.concurrency, function(entry, cb) {
       console.log('inserting entry with key %j', entry.key);
-      db.save(bucket, entry.key, entry.data, {index: entry.indexes}, function(err, res, receivedMetadata) {
+      var meta = {index: entry.indexes};
+      if(entry.meta){
+        meta = entry.meta;
+      }
+      db.save(bucket, entry.key, entry.data, meta, function(err) {
         if (err) {
           return cb(err);
         }
