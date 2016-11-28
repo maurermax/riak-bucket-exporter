@@ -11,6 +11,8 @@ program
     .option('-f, --file [FileName]','specify the file name (default: [bucket].json)')
     .option('-i, --import','import mode (instead of reading from bucket entries will be written to bucket)')
     .option('-c, --concurrency [concurrency]','specify the concurrency (default: 20)')
+    .option('-m, --meta [meta]', 'import with meta (default: False)')
+    .option('-P, --pretty [pretty]', 'pretty stringify of json (default: False)')
     .option('--delete', 'delete the keys as they are exported (DANGER: possible data loss)')
     .parse(process.argv);
 if(!program.args.length) {
@@ -21,6 +23,8 @@ program.host = program.host || 'localhost';
 program.port = program.port || '8098';
 program.file = program.file || bucket+'.json';
 program.concurrency = program.concurrency || 20;
+program.meta = program.meta || false;
+program.pretty = program.pretty || false;
 var count = 0;
 var openWrites = 0;
 var db = require("riak-js").getClient({host: program.host, port: program.port});
@@ -115,10 +119,18 @@ function processKey(key, cb) {
     var out = {key: key};
     out.indexes = extractIndexes(meta);
     out.data = obj;
+    if(program.meta){
+      out.meta = meta;
+    }
+    out.meta = meta;
     if (!first) {
       fs.appendFileSync(program.file, ',');
     }
-    fs.appendFileSync(program.file, JSON.stringify(out,null,'\t'));
+    var options = [out];
+    if(program.pretty){
+      options = options.concat([null, '\t']);
+    }
+    fs.appendFileSync(program.file, JSON.stringify.apply(this, options));
     first=false;
 
     if (!deleteKeys) {
@@ -126,6 +138,9 @@ function processKey(key, cb) {
     }
 
     db.remove(bucket, key, function (err) {
+      if(err){
+        console.log(bucket, key, err)
+      }
       cb();
     });
   });
