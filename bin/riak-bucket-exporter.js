@@ -22,9 +22,9 @@ var bucket = program.args;
 program.host = program.host || 'localhost';
 program.port = program.port || '8098';
 program.file = program.file || bucket+'.json';
-program.concurrency = program.concurrency || 20;
-program.meta = program.meta || false;
-program.pretty = program.pretty || false;
+program.concurrency = !isNaN(program.concurrency) ? parseInt(program.concurrency, 10) : 20;
+program.meta = (program.meta==='true')  || false;
+program.pretty = (program.pretty==='true') || false;
 var count = 0;
 var openWrites = 0;
 var db = require("riak-js").getClient({host: program.host, port: program.port});
@@ -123,7 +123,7 @@ function processKey(key, cb) {
     var out = {key: key};
     out.indexes = extractIndexes(meta);
     out.data = obj;
-    if(program.meta){
+    if (program.meta) {
       out.meta = meta;
     }
     out.meta = meta;
