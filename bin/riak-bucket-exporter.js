@@ -10,6 +10,9 @@ program
     .option('-p, --port [port]','specify the post (default: 8098)')
     .option('-f, --file [FileName]','specify the file name (default: [bucket].json)')
     .option('-i, --import','import mode (instead of reading from bucket entries will be written to bucket)')
+    .option('-c, --concurrency [concurrency]','specify the concurrency (default: 20)')
+    .option('-m, --meta [meta]', 'import with meta (default: False)')
+    .option('-P, --pretty [pretty]', 'pretty stringify of json (default: False)')
     .option('--delete', 'delete the keys as they are exported (DANGER: possible data loss)')
     .parse(process.argv);
 if(!program.args.length) {
@@ -19,6 +22,9 @@ var bucket = program.args;
 program.host = program.host || 'localhost';
 program.port = program.port || '8098';
 program.file = program.file || bucket+'.json';
+program.concurrency = !isNaN(program.concurrency) ? parseInt(program.concurrency, 10) : 20;
+program.meta = (program.meta==='true')  || false;
+program.pretty = (program.pretty==='true') || false;
 var count = 0;
 var openWrites = 0;
 var db = require("riak-js").getClient({host: program.host, port: program.port});
@@ -44,9 +50,13 @@ function importToBucket() {
       return console.log(err);
     }
     var entries = JSON.parse(data);
-    async.eachLimit(entries, 20, function(entry, cb) {
+    async.eachLimit(entries, program.concurrency, function(entry, cb) {
       console.log('inserting entry with key %j', entry.key);
-      db.save(bucket, entry.key, entry.data, {index: entry.indexes}, function(err, res, receivedMetadata) {
+      var meta = {index: entry.indexes};
+      if(entry.meta){
+        meta = entry.meta;
+      }
+      db.save(bucket, entry.key, entry.data, meta, function(err) {
         if (err) {
           return cb(err);
         }
@@ -62,7 +72,7 @@ function importToBucket() {
 }
 
 var receivedAll = false;
-var q = async.queue(processKey, 20);
+var q = async.queue(processKey, program.concurrency);
 q.drain = end;
 
 function exportFromBucket() {
@@ -113,10 +123,18 @@ function processKey(key, cb) {
     var out = {key: key};
     out.indexes = extractIndexes(meta);
     out.data = obj;
+    if (program.meta) {
+      out.meta = meta;
+    }
+    out.meta = meta;
     if (!first) {
       fs.appendFileSync(program.file, ',');
     }
-    fs.appendFileSync(program.file, JSON.stringify(out,null,'\t'));
+    var options = [out];
+    if(program.pretty){
+      options = options.concat([null, '\t']);
+    }
+    fs.appendFileSync(program.file, JSON.stringify.apply(this, options));
     first=false;
 
     if (!deleteKeys) {
@@ -124,6 +142,9 @@ function processKey(key, cb) {
     }
 
     db.remove(bucket, key, function (err) {
+      if(err){
+        console.log(bucket, key, err)
+      }
       cb();
     });
   });
