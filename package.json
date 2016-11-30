@@ -1,6 +1,6 @@
 {
   "name": "riak-bucket-exporter",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Small node utility to export a whole bucket with all keys from riak into a file",
   "main": "./bin/riak-bucket-exporter.js",
   "scripts": {
@@ -18,7 +18,11 @@
     "type": "git",
     "url": "https://github.com/maurermax/riak-bucket-exporter.git"
   },
-  "author": "Max Maurer <maxemanuel.maurer@gmail.com> (http://max-maurer.de/)",
+  "author": {
+    "name": "Max Maurer",
+    "email": "maxemanuel.maurer@gmail.com",
+    "url": "http://max-maurer.de"
+  },
   "license": "MIT",
   "dependencies": {
     "async": "^0.9.0",
@@ -32,5 +36,9 @@
   {
     "name": "Xavier Sellier",
     "url": "https://www.linkedin.com/pub/xavier-sellier/43/7b4/425"
+  },
+  {
+    "name": "Sutiagin Alexey",
+    "url": "https://github.com/alesut"
   }]
 }
